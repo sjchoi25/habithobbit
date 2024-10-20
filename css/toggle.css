@@ -1,0 +1,23 @@
+input.toggle {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: radial-gradient(circle 7px, white 100%, transparent calc(100% + 1px)) #ccc -8px;
+  transition: 0.3s ease-in-out;
+  cursor: pointer;
+  margin: 0;
+  margin-right: 10px;
+  line-height: normal;
+}
+
+input.toggle:checked {
+  background-color: dodgerBlue;
+  background-position: 8px;
+}
+
+.align {
+  display: flex;
+  cursor: pointer;
+  margin-bottom: 3px;
+}
