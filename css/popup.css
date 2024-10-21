@@ -9,16 +9,6 @@ body {
     font-family: sans-serif;
 }
 
-#confirm-modal button,
-#popup-modal button {
-    background-color: white;
-    border: 1px solid black;
-    border-radius: 3px;
-    padding: 4px 6px;
-    margin: 5px;
-    cursor: pointer;
-}
-
 #screen-mask {
     top: 0;
     position: fixed;
@@ -52,7 +42,7 @@ body {
 #popup-modal button,
 #confirm-modal button {
     font-weight: bolder;
-    background-color: #999;
+    background-color: #89c689;
     color: white;
     transition: 0.5s ease;
     cursor: pointer;
@@ -65,7 +55,15 @@ body {
     border-radius: 7px;
 }
 
+#cancel {
+    background-color: #999 !important;
+}
+
+#cancel:hover {
+    background-color: #8a8a8a !important; 
+}
+
 #popup-modal button:hover,
 #confirm-modal button:hover {
-    background-color: #666;
+    background-color: #4c9e4c;
 }

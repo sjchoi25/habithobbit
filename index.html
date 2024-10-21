@@ -2,73 +2,76 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Habit Hobbit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Habit Hobbit</title>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat+Alternates:wght@300&family=Montserrat:wght@600&display=swap"
-    rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet" type="text/css" />
-  <script src="js/popup.js"></script>
-  <script src="js/main.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat+Alternates:wght@300&family=Montserrat:wght@600&display=swap"
+        rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <script src="js/popup.js"></script>
+    <script src="js/main.js" defer></script>
 
-  <link rel="stylesheet" type="text/css" href="css/popup.css">
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
 
-  <link href="css/toggle.css" rel="stylesheet" type="text/css" />
+    <link href="css/toggle.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-  <!--For people who don't have javascript enabled-->
-  <noscript>Please consider enabling Javascript.</noscript>
+    <!--For people who don't have javascript enabled-->
+    <noscript>Please consider enabling Javascript.</noscript>
 
-  <!--Navigation bar although this might be easier with react idk any react-->
-  <nav>
-    <div id="nav-title"><a href="/">Habit Hobbit</a></div>
-    <div id="nav-links">
-      <ul>
-        <li>
-          <div id="enable" onclick="askPermission()">Enable Notifications</div>
-        </li>
-        <li>
-          <div id="about" onclick="aboutWindow()">About</div>
-        </li>
-      </ul>
-      <div id="plusbtn" onclick="onHabitCreate('New habit', 4000, 'A habit')">New Habit
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff">
-          <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-        </svg>
-      </div>
+    <!--Navigation bar although this might be easier with react idk any react-->
+    <nav>
+        <div id="nav-title">
+            <img src="assets/banner.png" alt="logo">
+        </div>
+        <div id="nav-links">
+            <ul>
+                <li>
+                    <div id="enable" onclick="askPermission()">Enable Notifications</div>
+                </li>
+                <li>
+                    <div id="about" onclick="aboutWindow()">About</div>
+                </li>
+            </ul>
+            <div id="plusbtn" onclick="newHabit()">New Habit
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#fff">
+                    <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+                </svg>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!--Might put some "about" text above or a section header-->
+        <!--Where all the habits are in-->
+        <div id="no-habits">You currently don't have any habits. Click the "Add Habit" button to create one!</div>
+        <div id="habits-container">
+            <!--This is a dummy habit-->
+
+        </div>
+    </main>
+
+    <!--Modal for delete and whatnot-->
+    <div id="screen-mask" style="display: none;"></div>
+    <div id="confirm-modal" style="display: none;">
+        <p></p>
+        <button id="ok">OK</button>
+        <button id="cancel">CANCEL</button>
     </div>
-  </nav>
-
-  <main>
-    <!--Might put some "about" text above or a section header-->
-    <!--Where all the habits are in-->
-    <div id="habits-container">
-      <!--This is a dummy habit-->
-
+    <div id="popup-modal" style="display: none;">
+        <p></p>
+        <button>OK</button>
     </div>
-  </main>
 
-  <!--Modal for delete and whatnot-->
-  <div id="screen-mask" style="display: none;"></div>
-  <div id="confirm-modal" style="display: none;">
-    <p></p>
-    <button id="ok">OK</button>
-    <button id="cancel">CANCEL</button>
-  </div>
-  <div id="popup-modal" style="display: none;">
-    <p></p>
-    <button>OK</button>
-  </div>
-
-  <div id="theme" onclick="darkModeChange(this.classList)">
-  </div>
+    <div id="theme" onclick="darkModeChange(this.classList)">
+    </div>
 </body>
 
 </html>

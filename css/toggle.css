@@ -12,7 +12,7 @@ input.toggle {
 }
 
 input.toggle:checked {
-  background-color: dodgerBlue;
+  background-color: #89c689;
   background-position: 8px;
 }
 

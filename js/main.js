@@ -31,6 +31,10 @@ habits = {
 };
 */
 
+function toMins(habitId) {
+    return Math.round(habits[habitId].interval / 600) / 100
+}
+
 // Stores the data inputted, where data is the habit data
 function storeData() {
     localStorage.setItem("data", JSON.stringify(habits));
@@ -44,27 +48,24 @@ function _deleteData() {
 // First call updateHabitData (even when creating new habits)
 // And then call updateHabitDOM to add the data to the page
 function updateHabitDOM(habitId) {
-    $(`#${habitId} .habit-description`).text =
-        habits[habitId].description;
-    // TODO: update interval for this habit
-    $(`#${habitId} .habit-interval`).text = habits[habitId].interval;
+    $(`#${habitId} .habit-description`).html(`<strong>Description: </strong>${habits[habitId].description}`);
+    $(`#${habitId} .habit-interval`).html(`<strong>Interval: </strong>${toMins(habitId)} minutes`);
 
-    $(`#${habitId} .habit-title`).text = habits[habitId].title;
+    $(`#${habitId} .habit-title`).text(habits[habitId].title);
 
-    $(`#${habitId}`).addClass(habits[habitId].color);
+    $(`#${habitId} .habit-main`).removeClass().addClass("habit-main").addClass(habits[habitId].color);
 
-    // DONT WORRY ABOUT THIS LOL ITS JUST ACTIVE OR NOT ACTIVE
-    // TODO: clearInterval when inactive
-    let toggleElem = $(`#${habitId} .habit-toggle`);
-    if (toggleElem.classList[-1] != habits[habitId].active) {
-        toggleElem.classList.replace(
-            toggleElem.classList[-1] ? "active" : "inactive",
-            habits[habitId].active ? "active" : "inactive"
-        );
+    // Clear original interval
+    clearInterval(intervalID[habitId]);
+    delete intervalID[habitId];
+
+    if (habits[habitId].active) {
+        // set interval
+        intervalID[habitId] = setInterval((hid) => { notify(hid) }, habits[habitId].interval, habitId);
     }
 }
 
-function updateHabitData(habitId, title_, interval_, active_, description_, color_ = "#eee") {
+function updateHabitData(habitId, title_, interval_, active_, description_, color_ = "default") {
     habits[habitId] = {
         title: title_,
         interval: interval_,
@@ -79,7 +80,7 @@ function updateHabitData(habitId, title_, interval_, active_, description_, colo
 
 function deleteHabit(habitId) {
     // delete element habits array
-    habits.pop(habitId);
+    delete habits[habitId];
     storeData();
 
     // Delete from the DOM
@@ -87,7 +88,11 @@ function deleteHabit(habitId) {
 
     // clear interval
     clearInterval(intervalID[habitId]);
-    intervalID.pop(habitId);
+    delete intervalID[habitId];
+
+    if (Object.keys(habits).length === 0) {
+        $("#no-habits").css("display", "block");
+    }
 }
 
 function createHabit(habitId) {
@@ -95,14 +100,14 @@ function createHabit(habitId) {
     // get all data from habits array
     // put that into the html
 
-    habitHTML = `<div class="habit ${habits[habitId].color}" id="${habitId}">
-        <div class="habit-main">
+    habitHTML = `<div class="habit" id="${habitId}">
+        <div class="habit-main ${habits[habitId].color}">
           <div class="habit-title">${habits[habitId].title}</div>
           <div class="habit-actions">
             <div class="habit-toggle">
-              <label class="align"><input type="checkbox" class="toggle" checked></label>
+              <label class="align"><input type="checkbox" class="toggle" ${habits[habitId].active ? "checked" : ""}></label>
             </div>
-            <div class="habit-edit"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+            <div class="habit-edit" onclick="editHabit(this.parentElement.parentElement.parentElement.id)"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                 width="24px" fill="#999">
                 <path
                   d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
@@ -115,32 +120,43 @@ function createHabit(habitId) {
           </div>
         </div>
         <div class="habit-content">
-          <div class="habit-interval"><strong>Interval: </strong>${habits[habitId].interval}</div>
+          <div class="habit-interval"><strong>Interval: </strong>${toMins(habitId)} minutes</div>
           <br />    
           <div class="habit-description"><strong>Description: </strong>${habits[habitId].description}</div>
         </div>
       </div>`
 
     $("#habits-container").append(habitHTML);
-    intervalID[habitId] = setInterval((hid) => { notify(hid) }, habits[habitId].interval, habitId); // value is interval id 
+
+    $(`#${habitId} .toggle`).on("change", () => { toggleHabit(habitId) });
+
+    if (habits[habitId].active) {
+        intervalID[habitId] = setInterval((hid) => { notify(hid) }, habits[habitId].interval, habitId); // value is interval id 
+    }
+
+
+    $("#no-habits").css("display", "none");
 }
 
 
 function deleteInterface(habitId) {
-    show("#confirm-modal", `Are you sure you want to delete the ${habits[habitId].title} habit?`);
+    show("#confirm-modal", `Are you sure you want to delete the <b>${habits[habitId].title}</b> habit?`);
 
     $("#confirm-modal #cancel").click(() => {
         $("#screen-mask").hide();
         $("#confirm-modal").hide();
+        $('#confirm-modal #ok').off('click');
     });
     $("#confirm-modal #ok").click(() => {
         $("#screen-mask").hide();
         $("#confirm-modal").hide();
         deleteHabit(habitId);
+
+        $('#confirm-modal #ok').off('click');
     });
 }
 
-function onHabitCreate(title, interval, description) {
+function onHabitCreate(title, interval, description, color) {
     let habitId;
     let keys = Object.keys(habits);
     if (keys.length === 0) {
@@ -151,7 +167,7 @@ function onHabitCreate(title, interval, description) {
         habitId = "h" + (parseInt(keys[keys.length - 1].slice(-1)) + 1).toString();
     }
     // populates the array with the habit data
-    updateHabitData(habitId, title, interval, true, description);
+    updateHabitData(habitId, title, interval, true, description, color);
 
     createHabit(habitId);
 }
@@ -181,31 +197,37 @@ function notify(habitId) {
     }
 }
 
+if (Object.keys(habits).length != 0) {
+    $("#no-habits").css("display", "none");
+}
+
 // iterate over all habits
 for (const [key, value] of Object.entries(habits)) {
     createHabit(key); // key is habit id 
 }
 
 
-Object.prototype.pop = function() {
-    for (var key in this) {
-        if (!Object.hasOwnProperty.call(this, key)) continue;
-        var result = this[key];
-        if (!delete this[key]) throw new Error();
-        return result;
-    }
-};
-
-
 function aboutWindow() {
     show("#popup-modal", `
         <div style="padding: 20px; font-weight: 400;">
-            <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">About This App</h2>
-            <p style="font-size: 16px; color: #555; line-height: 1.5;">
-                 
+            <img src="assets/logo.png" style="border-radius: 50%; height: 70px;" alt="logo">
+            <h2 style="font-size: 28px; margin-bottom: 10px;">About Habit Hobbit</h2>
+            <p style="font-size: 16px; line-height: 1.5;">
+                Welcome to <strong>Habit Hobbit</strong>, your companion in building better habits!
             </p>
-            <p style="font-size: 16px; color: #555; line-height: 1.5;">
-                <strong>Version:</strong> 1.0.0 <br>
+            <h3 style="font-size: 20px; margin-top: 20px;">Getting Started:</h3>
+            <ul style="font-size: 16px; line-height: 1.5; margin-left: 20px;">
+                <li>Click the <strong>"New Habit"</strong> button at the top right to add a new habit.</li>
+                <li>Set your preferred notification frequency for each habit.</li>
+            </ul>
+            <h3 style="font-size: 20px; margin-top: 20px;">Managing Your Habits:</h3>
+            <ul style="font-size: 16px; line-height: 1.5; margin-left: 20px;">
+                <li><strong>Pause</strong> a habit: Click the slider.</li>
+                <li><strong>Edit</strong> a habit: Click the pencil icon.</li>
+                <li><strong>Delete</strong> a habit: Click the trash can icon.</li>
+            </ul>
+            <p style="font-size: 16px; color: #555; line-height: 1.5; margin-top: 20px;">
+                <strong>Version:</strong> 1.0.0<br>
                 <strong>Developers:</strong> Sean Choi, Laszlo Zolyomi
             </p>
         </div>
@@ -218,7 +240,7 @@ function aboutWindow() {
     });
 }
 
-
+// THEME WHEN PAGE LOADS
 let theme = localStorage.getItem("theme");
 if (theme === null) {
     theme = 'theme-light';
@@ -227,18 +249,147 @@ if (theme === null) {
 $('#theme').addClass(theme)
 
 if (theme === 'theme-dark') {
-    $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);</style>');
+    $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}</style>');
 }
 
 function darkModeChange(classList) {
     if (classList.contains("theme-light")) {
         classList.replace("theme-light", "theme-dark");
-        $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);</style>');
+        $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}</style>');
         localStorage.setItem('theme', 'theme-dark');
     }
     else {
         classList.replace("theme-dark", "theme-light");
-        $('head').append('<style>html {transition: filter .2s; filter: invert(0) hue-rotate(0deg);</style>');
+        $('head').append('<style>html {transition: filter .2s; filter: invert(0) hue-rotate(0deg);} img {filter: invert(0) hue-rotate(0deg);}</style>');
         localStorage.setItem('theme', 'theme-light');
     }
+}
+
+
+function newHabitText(text) {
+    return `
+    <div id="create-habit-id">
+        <h2> ${text} </h2> 
+
+        <div id="create-error" style="padding: 15px;border-radius: 4px;  color: #842029;background-color: #f8d7da;border: 1px solid #f5c2c7;margin-bottom:15px;display:none;">Please fill out all fields correctly.</div>
+
+        <label for="enter-title">Habit Title:</label>
+
+        <input type="text" id="enter-title" name="enter-title" required minlength="1" required maxlength="30" />
+        <br /><br />
+        <label for="enter-interval">Time interval (in minutes):</label>
+
+        <input type="number" id="enter-interval" name="enter-interval" required minlength="1"/>
+
+        <br /><br />
+
+        <label for="enter-description">Description:</label>
+
+        <input type="text" id="enter-description" name="enter-description" required minlength="1" />
+        <br /><br />
+        <label for="enter-color">Color:</label>
+
+        <select name="enter-color" id="enter-color">
+            <option value="default" selected="selected">Default</option>    
+            <option value="red">Red</option>
+            <option value="orange">Orange</option>
+            <option value="yellow">Yellow</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+            <option value="purple">Purple</option>
+            <option value="pink">Pink</option>
+        </select>
+    </div>    
+    `
+}
+
+function newHabit() {
+    show("#confirm-modal", newHabitText("Create a new habit"));
+
+    $("#confirm-modal #cancel").off('click').click(() => {
+        $("#screen-mask").hide();
+        $("#confirm-modal").hide();
+        $('#confirm-modal #ok').off('click');
+    });
+    $("#confirm-modal #ok").off('click').click(() => {
+
+        let titleE = $('#enter-title').val();
+        const interval = $('#enter-interval').val() * 60000;
+        let description = $('#enter-description').val();
+        const color = $('#enter-color').val()
+
+        if (titleE.trim() === "" || !(/^\d+$/.test(interval) && parseInt(interval) > 0) || description.trim() === "") {
+            $("#create-error").show();
+        }
+        else {
+            $("#screen-mask").hide();
+            $("#confirm-modal").hide();
+            onHabitCreate(
+                titleE,
+                interval,
+                description,
+                color
+            );
+        }
+        $('#confirm-modal #ok').off('click');
+    });
+}
+
+
+function editHabit(habitId) {
+    show("#confirm-modal", newHabitText("Edit your habit"));
+
+    $("#enter-title").attr("value", habits[habitId].title);
+    $("#enter-interval").attr("value", toMins(habitId));
+    $("#enter-description").attr("value", habits[habitId].description);
+    $("#enter-color").val(habits[habitId].color);
+
+    $("#confirm-modal #cancel").off('click').click(() => {
+        $("#screen-mask").hide();
+        $("#confirm-modal").hide();
+        $('#confirm-modal #ok').off('click');
+    });
+    $("#confirm-modal #ok").off('click').click(() => {
+
+        let titleE = $('#enter-title').val();
+        const interval = $('#enter-interval').val() * 60000;
+        let description = $('#enter-description').val();
+        const color = $('#enter-color').val()
+
+        if (titleE.trim() === "" || !(/^\d+$/.test(interval) && parseInt(interval) > 0) || description.trim() === "") {
+            $("#create-error").show();
+        }
+        else {
+            $("#screen-mask").hide();
+            $("#confirm-modal").hide();
+
+            // Update data
+            updateHabitData(
+                habitId,
+                titleE,
+                interval,
+                habits[habitId].active,
+                description,
+                color);
+
+            // Update DOM
+            updateHabitDOM(habitId);
+        }
+        $('#confirm-modal #ok').off('click');
+    });
+}
+
+function toggleHabit(habitId) {
+    if (habits[habitId].active) {
+        habits[habitId].active = false;
+        clearInterval(intervalID[habitId]);
+        delete intervalID[habitId];
+    }
+    else {
+        habits[habitId].active = true;
+        intervalID[habitId] = setInterval((hid) => { notify(hid) }, habits[habitId].interval, habitId); // value is interval id 
+    }
+
+    storeData();
+
 }
