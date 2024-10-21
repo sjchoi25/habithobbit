@@ -330,8 +330,8 @@ function newHabit() {
                 description,
                 color
             );
+            $('#confirm-modal #ok').off('click');
         }
-        $('#confirm-modal #ok').off('click');
     });
 }
 
@@ -374,8 +374,8 @@ function editHabit(habitId) {
 
             // Update DOM
             updateHabitDOM(habitId);
+            $('#confirm-modal #ok').off('click');
         }
-        $('#confirm-modal #ok').off('click');
     });
 }
 
