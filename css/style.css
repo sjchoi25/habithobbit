@@ -13,7 +13,7 @@ html {
     font-weight: 300;
     overscroll-behavior: none;
     font-family: "Inter", sans-serif;
-    background: #fff;
+    background-color: #fff;
 }
 
 a:not(nav a) {
