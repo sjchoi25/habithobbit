@@ -195,6 +195,7 @@ function notify(habitId) {
     if (Notification.permission === "granted") {
         let notification = new Notification(habits[habitId].title, { body: habits[habitId].description });
     }
+    window.postMessage({ type: "FROM_PAGE", text: `${habits[habitId].title}-HABIT` }, "*");
 }
 
 if (Object.keys(habits).length != 0) {
