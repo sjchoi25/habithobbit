@@ -250,18 +250,18 @@ if (theme === null) {
 $('#theme').addClass(theme)
 
 if (theme === 'theme-dark') {
-    $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}</style>');
+    $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}#plusbtn {background-color: #377137;border: 1px solid #377137;}</style>');
 }
 
 function darkModeChange(classList) {
     if (classList.contains("theme-light")) {
         classList.replace("theme-light", "theme-dark");
-        $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}</style>');
+        $('head').append('<style>html {transition: filter .2s; filter: invert(0.9) hue-rotate(180deg);} img {filter: invert(1.1) hue-rotate(180deg);}#plusbtn {background-color: #377137;border: 1px solid #377137;}</style>');
         localStorage.setItem('theme', 'theme-dark');
     }
     else {
         classList.replace("theme-dark", "theme-light");
-        $('head').append('<style>html {transition: filter .2s; filter: invert(0) hue-rotate(0deg);} img {filter: invert(0) hue-rotate(0deg);}</style>');
+        $('head').append('<style>html {transition: filter .2s; filter: invert(0) hue-rotate(0deg);} img {filter: invert(0) hue-rotate(0deg);}#plusbtn {background-color: #89c689;border: 1px solid #89c689;}</style>');
         localStorage.setItem('theme', 'theme-light');
     }
 }
