@@ -19,7 +19,6 @@ body {
     background-color: #fff;
 }
 
-
 a:not(nav a) {
     color: #23a298;
     text-decoration: none;
@@ -192,6 +191,7 @@ nav ul {
     transition: background-color 0.3s, color 0.3s;
 }
 
+
 #plusbtn svg {
     margin-left: 10px;
     transition: fill 0.3s;
@@ -321,5 +321,13 @@ nav ul {
 
 #no-habits {
     text-align: center;
-    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: 400;
+}
+
+#no-habits img {
+    width: 250px;
+    margin-bottom: 30px;
 }
